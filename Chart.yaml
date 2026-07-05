@@ -2,7 +2,7 @@ apiVersion: v2
 name: retry-endpoint
 description: BSV multicast retry endpoint — caches frames and retransmits on NACK
 type: application
-version: 0.3.0
+version: 0.3.1
 # appVersion MUST equal a tag published on ghcr.io/lightwebinc/retry-endpoint
 # (the chart's tag:"" default pulls this). Images are published manually via the
 # binary repo's image-publish.yml workflow; bump appVersion ONLY in lockstep with
@@ -33,3 +33,9 @@ annotations:
       description: config.egressIface (retransmission egress iface, defaults separately from mcIface) + orchestrated-edge example
     - kind: added
       description: config.egressMulticastLoop / config.egressHoplimit (collapsed-node multicast egress)
+    - kind: added
+      description: config.rlThrottleResponse -> RL_THROTTLE_RESPONSE (opt-in THROTTLED backoff replies)
+    - kind: fixed
+      description: remove invalid 'link' value from beaconScope enum/comment (binary rejects it)
+    - kind: changed
+      description: document config.egressHoplimit as currently a no-op (binary does not read EGRESS_HOPLIMIT); rework orchestrated-edge example as collapsed-node

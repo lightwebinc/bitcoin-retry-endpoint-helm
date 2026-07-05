@@ -12,8 +12,8 @@ This repository packages templates, default values, JSON Schema validation, and 
 
 ```bash
 helm install retry-node-1 oci://ghcr.io/lightwebinc/charts/retry-endpoint \
-  --version 0.3.0 -n bsv-mcast --create-namespace \
-  --set config.nackAddr=fd20::24 \
+  --version 0.3.1 -n bsv-mcast --create-namespace \
+  --set config.nackAddr=2001:db8::24 \
   --set 'nodeSelector.bsv-mcast/node=retry-1'
 ```
 
@@ -50,17 +50,16 @@ backend separately (e.g. `bitnami/redis`, or an Aerospike CE StatefulSet). See
 
 Same as the other charts — `multus` (default), `host`, `unicast` (reserved).
 
-### Orchestrated edge (W2)
+### Collapsed node (hostNetwork)
 
-On a fleet-orchestrated collapsed edge the retry endpoint runs as a `hostNetwork` pod on a k0s worker, serving BRC-126 NACK retransmission for its co-located listener over the host ip6gre fabric. Pin per region and tolerate the data-plane taint. Worked example: [`examples/orchestrated-edge.yaml`](examples/orchestrated-edge.yaml).
+On a collapsed node — one that runs the multicast routing stack and a co-resident listener — the retry endpoint runs as a `hostNetwork` pod, serving BRC-126 NACK retransmission over the host fabric. Tolerate the data-plane taint and pin with a `nodeSelector` as needed. Worked example: [`examples/collapsed-node.yaml`](examples/collapsed-node.yaml).
 
 ```sh
-helm install retry-us . -f examples/orchestrated-edge.yaml \
-  --set nodeSelector."topology\.kubernetes\.io/region"=us \
+helm install retry-node-1 . -f examples/collapsed-node.yaml \
   --set config.nackAddr=<pod fabric IPv6>
 ```
 
-`config.nackAddr` stays required (see above); on a multi-NIC edge also set `config.egressIface` to the retransmission NIC when it differs from `config.mcIface`.
+`config.nackAddr` stays required (see above); on a multi-NIC edge also set `config.egressIface` to the retransmission NIC when it differs from `config.mcIface`. Note that `config.egressHoplimit` is currently a **no-op** (the binary does not read `EGRESS_HOPLIMIT`) — raise the multicast hop limit at the host level if retransmits must cross a mesh/tunnel hop.
 
 ## Values reference
 
@@ -71,7 +70,7 @@ The chart ships hardened pod-level defaults: `resources` requests/limits (size m
 See [`values.yaml`](values.yaml). Every flag accepted by the binary is exposed under `.config`, including:
 
 - Per-FrameVer cache TTLs (tx / block / subtree / anchor)
-- All four rate-limit tiers (IP / chain / sequence / group)
+- All four rate-limit tiers (IP / sequence / chain / group), plus the opt-in THROTTLED backoff reply: `config.rlThrottleResponse` → `RL_THROTTLE_RESPONSE`
 - BRC-126 beacon: tier, preference, interval, scope, flags
 - ACK/MISS response suppression
 - BRC-132 subtree data caching
@@ -82,7 +81,9 @@ See [`values.yaml`](values.yaml). Every flag accepted by the binary is exposed u
 
 ### SSM (Source-Specific Multicast)
 
-`config.sourceMode` defaults to `asm`. When `ssm`:
+`config.sourceMode` defaults to `ssm` (`asm` is the lab/dev fallback). The
+binary fails closed at startup under `ssm` until at least one bootstrap
+source is configured. When `ssm`:
 
 - `config.bindSource` MUST be the per-pod IPv6 from your
   Multus/Whereabouts allocation. The beacon emit socket binds it via

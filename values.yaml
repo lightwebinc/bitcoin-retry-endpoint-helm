@@ -54,7 +54,8 @@ config:
   mcScope: "site"
   mcGroupId: "0x000B"
 
-  # SSM (RFC 4607). See bsv-multicast/docs/SourceSpecificMulticast.
+  # SSM (RFC 4607). See
+  # https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md#source-specific-multicast-ssm.
   # sourceMode "ssm" requires at least one of ssmBootstrap.* or
   # ssmPublishersStatic. retry-endpoint also EMITS NACK-discovery beacons,
   # so set bindSource to the per-pod IPv6 from Multus/Whereabouts. SSM
@@ -76,8 +77,9 @@ config:
   # option). REQUIRED true on a COLLAPSED node: the kernel MFC only forwards the
   # retry-endpoint's locally-emitted retransmits onto the fabric tunnels (and to a
   # co-resident listener) when loop is on. null inherits the binary default (off).
-  # egressHoplimit raises the multicast hop limit (default 1 dies on the first
-  # mesh/tunnel hop; 0 inherits the binary default).
+  # egressHoplimit is currently a NO-OP: the binary does not read EGRESS_HOPLIMIT
+  # (key kept for forward compatibility with shard-proxy's knob). Raise the
+  # multicast hop limit at the host level if retransmits must cross a mesh/tunnel hop.
   egressMulticastLoop: null
   egressHoplimit: 0
   dedupWindow: "60s"
@@ -103,7 +105,7 @@ config:
   nackWorkers: 0        # 0 = NumCPU
 
   # Cache — modular shard-common/cache backend.
-  # See bsv-multicast/docs/ModularCacheBackend/modular-cache-backend.md
+  # See https://github.com/lightwebinc/shard-common/blob/main/docs/cache-backend.md
   cacheBackend: "memory"  # memory | redis | aerospike
   redisAddr: ""           # required when cacheBackend=redis (Redis/Valkey/Dragonfly); cross-instance dedup with memory backend
   # Aerospike Community Edition (required when cacheBackend=aerospike).
@@ -130,13 +132,17 @@ config:
   rlSequenceWindow: "1m"
   rlGroupRate: 200
   rlGroupBurst: 50
+  # rlThrottleResponse -> RL_THROTTLE_RESPONSE: reply to sequence/chain/group
+  # throttles with a 16-byte THROTTLED backoff hint (BRC-126 MsgType 0x13)
+  # instead of a silent drop; the per-IP flood tier never answers.
+  rlThrottleResponse: false
 
   # Beacon (BRC-126) ADVERT multicast
   beaconEnabled: true
   beaconTier: 0
   beaconPreference: 128
   beaconInterval: "60s"
-  beaconScope: "site"     # link | site | org | global | both | all
+  beaconScope: "site"     # site | org | global | both | all
   beaconFlagsUnicast: false
   beaconFlagsMulticast: true
   beaconFlagsDraining: false
@@ -151,7 +157,7 @@ config:
   # Runtime
   drainTimeout: "0s"
   debug: false  # deprecated alias for logLevel=debug
-  # Unified logging — see bsv-multicast/docs/UnifiedLogging/unified-logging-plan.md
+  # Unified logging — see https://github.com/lightwebinc/shard-common/blob/main/docs/logging.md
   logFormat: "text"   # text (stderr) | json (stdout, for fleet aggregation)
   logLevel: "info"    # debug|info|warn|error; runtime-togglable via POST /loglevel + SIGHUP
   traceSampling: 0    # 0..1 trace head sampling (0 = off; exports via otlpEndpoint; control-plane only)

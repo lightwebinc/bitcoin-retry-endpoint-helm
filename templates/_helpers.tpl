@@ -185,6 +185,8 @@ k8s.v1.cni.cncf.io/networks: |
   value: {{ .Values.config.rlGroupRate | quote }}
 - name: RL_GROUP_BURST
   value: {{ .Values.config.rlGroupBurst | quote }}
+- name: RL_THROTTLE_RESPONSE
+  value: {{ .Values.config.rlThrottleResponse | default false | quote }}
 - name: BEACON_ENABLED
   value: {{ .Values.config.beaconEnabled | quote }}
 - name: BEACON_TIER
