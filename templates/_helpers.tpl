@@ -165,6 +165,12 @@ k8s.v1.cni.cncf.io/networks: |
   value: {{ .Values.config.cacheTtlBlock | quote }}
 - name: CACHE_TTL_SUBTREE
   value: {{ .Values.config.cacheTtlSubtree | quote }}
+- name: CACHE_TTL_BEEF
+  value: {{ .Values.config.cacheTtlBeef | default "60s" | quote }}
+- name: BEEF_ENABLED
+  value: {{ .Values.config.beefEnabled | default false | quote }}
+- name: BEEF_SHARD_BITS
+  value: {{ .Values.config.beefShardBits | default 4 | quote }}
 - name: CACHE_TTL_ANCHOR
   value: {{ .Values.config.cacheTtlAnchor | quote }}
 - name: CACHE_MAX_KEYS
