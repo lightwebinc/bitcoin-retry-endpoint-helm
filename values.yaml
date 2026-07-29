@@ -125,7 +125,7 @@ config:
   # cacheTtlBeef is the V9 live-tail resend window.
   cacheTtlBeef: "60s"
   beefEnabled: false
-  beefShardBits: 4
+  beefShardBits: 0
   cacheTtlAnchor: "2m"
   cacheMaxKeys: 0
 
