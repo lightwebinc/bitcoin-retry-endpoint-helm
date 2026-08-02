@@ -127,7 +127,9 @@ config:
   cacheTtlBeef: "60s"
   beefEnabled: false
   beefShardBits: 0
-  beefMaxObjectBytes: 1048576  # D9 bound; MUST match the ingress proxies'
+  # No beefMaxObjectBytes here: retry-endpoint caches BRC-130 fragments opaquely
+  # and never reassembles, so the binary takes no object-size bound. The bound
+  # lives on the ingress proxies and the reassembling listeners.
   cacheTtlAnchor: "2m"
   cacheMaxKeys: 0
 

@@ -170,7 +170,9 @@ k8s.v1.cni.cncf.io/networks: |
 - name: BEEF_ENABLED
   value: {{ .Values.config.beefEnabled | default false | quote }}
 - name: BEEF_SHARD_BITS
-  value: {{ .Values.config.beefShardBits | default 4 | quote }}
+  {{- /* int (not default): Go-template default treats 0 as empty, so
+         `| default 4` silently widened an explicit 0 (single group) to 4. */}}
+  value: {{ .Values.config.beefShardBits | int | quote }}
 - name: CACHE_TTL_ANCHOR
   value: {{ .Values.config.cacheTtlAnchor | quote }}
 - name: CACHE_MAX_KEYS

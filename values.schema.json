@@ -246,12 +246,6 @@
           "minimum": 0,
           "maximum": 12,
           "description": "BRC-148 plane width (band 0x1000 + 2^bits groups); 0 = single-group plane. MUST match the ingress proxies."
-        },
-        "beefMaxObjectBytes": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 80740352,
-          "description": "D9 per-object byte bound (BRC-149 ingress MUST). Default 1 MiB. MUST match across proxy/listener/retry. Max is the ~77 MiB structural ceiling (uint16 FragTotal at the 1280-byte floor)."
         }
       }
     }
