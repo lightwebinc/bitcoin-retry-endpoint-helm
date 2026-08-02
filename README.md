@@ -12,7 +12,7 @@ This repository packages templates, default values, JSON Schema validation, and 
 
 ```bash
 helm install retry-node-1 oci://ghcr.io/lightwebinc/charts/retry-endpoint \
-  --version 0.4.0 -n bsv-mcast --create-namespace \
+  --version 0.5.0 -n bsv-mcast --create-namespace \
   --set config.nackAddr=2001:db8::24 \
   --set 'nodeSelector.bsv-mcast/node=retry-1'
 ```
@@ -67,10 +67,10 @@ helm install retry-node-1 . -f examples/collapsed-node.yaml \
 
 The chart ships hardened pod-level defaults: `resources` requests/limits (size memory to your resend window) and a nonroot `podSecurityContext` (uid 65532, seccomp `RuntimeDefault`, matching the distroless image).
 
-See [`values.yaml`](values.yaml). Every flag accepted by the binary is exposed under `.config`, including:
+See [`values.yaml`](values.yaml). Most flags accepted by the binary are exposed under `.config` — `-rl-sender-rate`/`-rl-sender-window` are settable via `extraEnv` — including:
 
 - Per-FrameVer cache TTLs (tx / block / subtree / anchor)
-- All four rate-limit tiers (IP / sequence / chain / group), plus the opt-in THROTTLED backoff reply: `config.rlThrottleResponse` → `RL_THROTTLE_RESPONSE`
+- All five rate-limit tiers (IP / sender / sequence / chain / group), plus the opt-in THROTTLED backoff reply: `config.rlThrottleResponse` → `RL_THROTTLE_RESPONSE`
 - BRC-126 beacon: tier, preference, interval, scope, flags
 - ACK/MISS response suppression
 - BRC-132 subtree data caching
@@ -86,7 +86,7 @@ binary fails closed at startup under `ssm` until at least one bootstrap
 source is configured. When `ssm`:
 
 - `config.bindSource` MUST be the per-pod IPv6 from your
-  Multus/Whereabouts allocation. The beacon emit socket binds it via
+  Multus static IPAM (or Whereabouts, if installed) allocation. The beacon emit socket binds it via
   `net.DialUDP(laddr=...)` so SSM listeners can pre-declare this
   retry-endpoint in their `ssmBootstrap.beacon`. Each replica MUST
   hold a distinct address — anycast / ECMP-shared sources break

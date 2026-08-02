@@ -45,7 +45,8 @@ networking:
   host:
     dnsPolicy: ClusterFirstWithHostNet
 
-# Full surface — every flag in retry-endpoint/config/config.go.
+# Most flags in retry-endpoint/config/config.go; -rl-sender-rate/-rl-sender-window
+# are settable via extraEnv.
 config:
   # Ingress (multicast receive)
   mcIface: "eth0"
