@@ -125,10 +125,8 @@ config:
   # and caches/retransmits FrameVer 0x09 frames; beefShardBits must match the proxy;
   # cacheTtlBeef is the V9 live-tail resend window.
   #
-  # REQUIRES image tag >= 1.7.0. The chart's default image is its appVersion
-  # (1.6.0), which predates these flags: it ignores the rendered BEEF env vars
-  # and joins no plane band. Set image.tag to a published tag >= 1.7.0 before
-  # enabling the plane.
+  # Requires image >= 1.7.0 — satisfied by the default appVersion. An older
+  # image.tag pin ignores the rendered BEEF env vars and joins no plane band.
   cacheTtlBeef: "60s"
   beefEnabled: false
   beefShardBits: 0
