@@ -206,7 +206,8 @@
         "beaconTier": {
           "type": "integer",
           "minimum": 0,
-          "maximum": 255
+          "maximum": 254,
+          "description": "BRC-126 beacon tier, 0-254; 255 (0xFF) is reserved for static seeds"
         },
         "beaconPreference": {
           "type": "integer",
